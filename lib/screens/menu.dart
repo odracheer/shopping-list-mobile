@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:shopping_list/screens/list_product.dart';
+import 'package:shopping_list/screens/login.dart';
 // Impor drawer widget
 import 'package:shopping_list/widgets/left_drawer.dart';
 import 'package:shopping_list/screens/shoplist_form.dart';
@@ -14,16 +18,6 @@ class MyHomePage extends StatelessWidget {
       ShopItem("Logout", Icons.logout),
   ];
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  
     @override
     Widget build(BuildContext context) {
         return Scaffold(
@@ -87,11 +81,12 @@ class ShopCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
     return Material(
       color: Colors.indigo,
       child: InkWell(
         // Area responsive terhadap sentuhan
-        onTap: () {
+        onTap: () async {
           // Memunculkan SnackBar ketika diklik
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
@@ -104,6 +99,30 @@ class ShopCard extends StatelessWidget {
                   context, 
                   MaterialPageRoute(builder: (context) => const ShopFormPage(),
               ));
+          }
+          else if (item.name == "Lihat Produk") {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const ProductPage()));
+          }
+          else if (item.name == "Logout") {
+            final response = await request.logout(
+                // TODO: Ganti URL dan jangan lupa tambahkan trailing slash (/) di akhir URL!
+                "http://<APP_URL_KAMU>/auth/logout/");
+            String message = response["message"];
+            if (response['status']) {
+              String uname = response["username"];
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text("$message Sampai jumpa, $uname."),
+              ));
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text("$message"),
+              ));
+            }
           }
         },
         child: Container(
