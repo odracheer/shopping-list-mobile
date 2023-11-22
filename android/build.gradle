@@ -19,11 +19,13 @@ signingConfigs {
              keyPassword = "$System.env.KEY_PASSWORD"
      }
 }
- buildTypes {
-     release {
-         signingConfig signingConfigs.release
-     }
+
+buildTypes {
+        release {
+            signingConfigs signingConfigs.release
+    }
 }
+ 
 
 allprojects {
     repositories {
